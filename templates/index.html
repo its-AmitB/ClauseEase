@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClauseEase – Legal Clause Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Example for icons -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ClauseEase – Legal Clause Analyzer</h1>
+            <p>Upload a legal document (PDF or DOCX) to automatically segment, classify, and simplify its clauses.</p>
+        </header>
+
+        <main>
+            <div class="upload-section card">
+                <form id="upload-form" action="/analyze" method="post" enctype="multipart/form-data">
+                    <label for="file-upload" class="custom-file-upload">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Choose File
+                    </label>
+                    <input id="file-upload" name="file" type="file" accept=".pdf,.docx" required>
+                    <span id="file-name">No file selected</span>
+                    <button id="analyze-btn" type="submit">Analyze Document</button>
+                </form>
+            </div>
+
+            <div id="loader" class="loader" style="display: none;"></div>
+
+            <!-- Error Display -->
+            {% if error %}
+            <div class="error-message card">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Results Display -->
+            {% if results %}
+            <div id="results-section">
+                <h2>Analysis Results</h2>
+                {% for clause in results %}
+                <div class="clause-card card">
+                    <div class="clause-header">
+                        <h3>Clause {{ loop.index }} <span class="clause-type-tag">{{ clause.clause_type }}</span></h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="clause-body">
+                        <!-- Original Clause -->
+                        <div class="result-block">
+                            <div class="result-header">
+                                <h4>Original Clause</h4>
+                                <button class="copy-btn" data-clipboard-text="{{ clause.raw_text }}">Copy</button>
+                            </div>
+                            <p class="original-text">{{ clause.raw_text }}</p>
+                        </div>
+
+                        <!-- Simplified Clause -->
+                        <div class="result-block">
+                           <div class="result-header">
+                                <h4>Simplified Clause (AI Generated)</h4>
+                                <button class="copy-btn" data-clipboard-text="{{ clause.simplified_text }}">Copy</button>
+                            </div>
+                            <p class="simplified-text">{{ clause.simplified_text }}</p>
+                        </div>
+                        
+                        <!-- Legal Terms -->
+                        {% if clause.legal_terms %}
+                        <div class="result-block">
+                            <h4>Recognized Legal Terms</h4>
+                            <div class="terms-list">
+                                {% for term, definition in clause.legal_terms.items() %}
+                                <p><strong>{{ term | capitalize }}:</strong> {{ definition }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Entities -->
+                        {% if clause.entities %}
+                        <div class="result-block">
+                             <h4>Extracted Entities</h4>
+                             <div class="entities-list">
+                                {% for entity, label in clause.entities %}
+                                <span class="entity-tag {{ label | lower }}">{{ entity }} ({{ label }})</span>
+                                {% endfor %}
+                             </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
