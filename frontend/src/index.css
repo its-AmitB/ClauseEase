@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-navy: #0A0F1E;
+  --color-accent-teal: #00C9B1;
+  
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-heading: 'Fraunces', ui-serif, Georgia, serif;
+}
+
+body {
+  background-color: var(--color-primary-navy);
+  color: white;
+}
